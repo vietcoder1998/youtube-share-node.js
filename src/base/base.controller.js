@@ -15,7 +15,7 @@ class BaseController {
       .delete("/", this.deleteMany.bind(this))
       .get("/:id", this.getDetail.bind(this))
       .post("/:id", this.getDetail.bind(this))
-      .put("/:id", this.create.bind(this))
+      .put("", this.create.bind(this))
       .delete("/:id", this.delete.bind(this));
   }
 
