@@ -11,6 +11,7 @@ class BaseService {
   update() {}
   updateDetail() {}
   deleteMany() {}
+  create() {}
 }
 
 module.exports = BaseService;

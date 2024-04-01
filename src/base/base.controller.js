@@ -7,17 +7,19 @@ class BaseController {
   requestHandler = new BaseResponse();
   service = new BaseService();
   baseResponse = new BaseResponse();
+  isOffDefault = false;
 
-  constructor() {
+  defaultRouter() {
     this.router
-      .get("", this.getList.bind(this))
-      .delete("", this.deleteMany.bind(this))
-      .get(":id", this.getDetail.bind(this))
-      .post(":id", this.getDetail.bind(this))
-      .put(":id", this.create.bind(this))
-      .delete(":id", this.delete.bind(this));
+      .get("/", this.getList.bind(this))
+      .delete("/", this.deleteMany.bind(this))
+      .get("/:id", this.getDetail.bind(this))
+      .post("/:id", this.getDetail.bind(this))
+      .put("/:id", this.create.bind(this))
+      .delete("/:id", this.delete.bind(this));
   }
 
+  customRouter() {}
   async getList(request, response) {
     try {
       const query = request?.query ?? { page: 0, size: 10 };
@@ -25,18 +27,18 @@ class BaseController {
 
       this.baseResponse.sendDataList(response, dataList);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 
   async getDetail(request, response) {
     try {
       const query = request?.query ?? { page: 0, size: 10 };
-      const detail = await this.service.detail(query);
+      const detail = await this.service.getDetail(query);
 
       this.baseResponse.sendDetail(response, detail);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 
@@ -47,7 +49,7 @@ class BaseController {
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 
@@ -58,7 +60,7 @@ class BaseController {
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 
@@ -69,7 +71,7 @@ class BaseController {
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 
@@ -80,7 +82,7 @@ class BaseController {
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
-      throw new Error(error);
+      this.baseResponse.sendError(response, error);
     }
   }
 }

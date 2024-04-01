@@ -1,15 +1,31 @@
+const path = require("path");
+
+const envPath = path.resolve(
+  __dirname,
+  process.env.NODE_ENV !== "production" ? "./../.env" : "./../.env.production"
+);
+
+require("dotenv").config({
+  path: envPath,
+});
+
 const bodyParser = require("body-parser");
 const express = require("express");
 const v1Router = require("./v1/v1.router");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3030;
 const { Server } = require("socket.io");
 const server = require("http").createServer();
-server.listen(3001);
+server.listen(process.env.NODE_SOCKET_PORT || 3031);
 
 const cors = require("cors");
 
 app.use(bodyParser.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 app.use((error, request, response, next) => {
   if (error) {
     response.status(404).send(error.message);
@@ -24,9 +40,9 @@ app.get("/", (req, res) => {
   res.end();
 });
 
-app.use(`/v1`, v1Router);
-app.listen(port, () => {
-  console.log("listening on port", port);
+app.use(`/api/v1`, v1Router);
+app.listen(process.env.NODE_PORT || 3030, () => {
+  console.log("Server listening on", [process.env.NODE_BASE_URL, process.env.NODE_PORT].join(':'));
 });
 
 const io = new Server(server, {
@@ -37,7 +53,7 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("connection", socket.id);
+  console.log("Socket listening on", [`${process.env.NODE_SOCKET_URL}`,process.env.NODE_SOCKET_PORT].join(':'))
   socket.on("new video", () => {
     socket.emit("send video", "new video");
   });

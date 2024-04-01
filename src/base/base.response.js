@@ -9,12 +9,12 @@ class BaseResponse {
   index = NaN;
   total = NaN;
   type = "single";
-  error = ''
+  error = "";
 
-  sendDataList = (response, data) => {
+  sendDataList = (response, data, model) => {
     response.send({
       message: this.message,
-      data: data ?? [],
+      dataList: data ?? [],
       type: "multi",
       page: this.page,
       index: this.index,
@@ -23,21 +23,23 @@ class BaseResponse {
     response.end();
   };
 
-  senDetail = (response, detail) => {
+  sendDetail = (response, detail, model) => {
     response.send({
       message: this.message,
-      detail,
-      type: this.type,
+      detail: detail,
+      type: "single",
+      model,
     });
     response.end();
   };
 
-  sendError = (response, detail) => { 
+  sendError = (response, detail, model) => {
     response.send({
-        message,
-        status: -1
-    })
-  }
+      message: detail.message,
+      status: -1,
+      model,
+    });
+  };
 }
 
-module.exports = BaseResponse
+module.exports = BaseResponse;
