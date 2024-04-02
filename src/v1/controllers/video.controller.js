@@ -1,7 +1,7 @@
 const BaseController = require("../../base/base.controller");
 const { ModelName } = require("../../config/constant.config");
 const VideoService = require("../services/video.service");
-const AuthenticateJob =  require("../../job/authenticate.job");
+const AuthenticateJob = require("../../job/authenticate.job");
 
 class VideoController extends BaseController {
   name = ModelName.videos;
@@ -10,10 +10,35 @@ class VideoController extends BaseController {
   constructor() {
     super();
 
-    this.router
-      .post("/:id/like", AuthenticateJob.instance.validateRequest, this.like.bind(this))
-      .post("/:id/dislike", this.dislike.bind(this));
     this.defaultRouter();
+  }
+
+  defaultRouter() {
+    this.router
+      .get("", this.getList.bind(this))
+      .delete(
+        "",
+        AuthenticateJob.instance.validateRequest.bind(AuthenticateJob.instance),
+        this.deleteMany.bind(this)
+      )
+      .get("/:id", this.getDetail.bind(this))
+      .post("/:id", this.getDetail.bind(this))
+      .put("", AuthenticateJob.instance.validateRequest.bind(AuthenticateJob.instance), this.create.bind(this))
+      .delete(
+        "/:id",
+        AuthenticateJob.instance.validateRequest.bind(AuthenticateJob.instance),
+        this.delete.bind(this)
+      )
+      .post(
+        "/:id/like",
+        AuthenticateJob.instance.validateRequest.bind(AuthenticateJob.instance),
+        this.like.bind(this)
+      )
+      .post(
+        "/:id/dislike",
+        AuthenticateJob.instance.validateRequest.bind(AuthenticateJob.instance),
+        this.dislike.bind(this)
+      );
   }
 
   async create(request, response) {
@@ -41,9 +66,8 @@ class VideoController extends BaseController {
 
   async dislike(request, response) {
     try {
-      const videoId = request?.params.id
-      const userId = request?.headers['funny-movie-user-id']
-      console.log(videoId)
+      const videoId = request?.params.id;
+      const userId = request?.headers["funny-movie-user-id"];
       const dataList = await this.service.onDislikeVideo(videoId, userId);
 
       this.baseResponse.sendDetail(response, dataList);
@@ -54,8 +78,8 @@ class VideoController extends BaseController {
 
   async like(request, response) {
     try {
-      const videoId = request?.params.id
-      const userId = request?.headers['funny-movie-user-id']
+      const videoId = request?.params.id;
+      const userId = request?.headers["funny-movie-user-id"];
       const dataList = await this.service.onLikeVideo(videoId, userId);
 
       this.baseResponse.sendDetail(response, dataList);

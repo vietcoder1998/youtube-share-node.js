@@ -21,8 +21,8 @@ class AuthenticateJob {
   get(id) {
     const item = this.data[id];
 
-    if (!id || item) {
-      throw new Error("Token invalid");
+    if (!id || !item) {
+      throw new Error("Token is not found" + item + id);
     }
 
     return item;
@@ -79,6 +79,7 @@ class AuthenticateJob {
 
   unRegister(id, token) {
     this.validate(id, token);
+    console.log(`new User un registered: ${id}`);
 
     return this.del(id);
   }
@@ -90,6 +91,8 @@ class AuthenticateJob {
     if (token !== validateToken) {
       throw new Error("Token invalid");
     }
+
+    return 1;
   }
 
   generatePassword(password) {
@@ -102,16 +105,12 @@ class AuthenticateJob {
 
   validateRequest(request, response, next) {
     try {
-      const userId = request.headers["funny-movies-user-id"];
-      const token = request.headers.authorization.split("Bearer ")[0];
+      const userId = request.headers["funny-movie-user-id"];
+      const token = request.headers.token.replace("Bearer ", "");
 
-      const isValidate = this.validate(userId, token);
+      this.validate(userId, token);
 
-      if (!isValidate) {
-        throw new Error("Token is not valid");
-      } else {
-        next();
-      }
+      next();
     } catch (error) {
       response.status(404).send(error.message).end();
     }
