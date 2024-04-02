@@ -8,6 +8,13 @@ class BaseController {
   service = new BaseService();
   baseResponse = new BaseResponse();
   isOffDefault = false;
+  io = {};
+
+  constructor(io) {
+    if (io) {
+      this.io = io;
+    }
+  }
 
   defaultRouter() {
     this.router
@@ -24,7 +31,6 @@ class BaseController {
     try {
       const query = request?.query ?? { page: 0, size: 10 };
       const dataList = await this.service.getList(query);
-      console.log(`this.name , ${this.name}`)
 
       this.baseResponse.sendDataList(response, dataList);
     } catch (error) {
@@ -56,7 +62,7 @@ class BaseController {
 
   async create(request, response) {
     try {
-      const body = request.body ?? {}
+      const body = request.body ?? {};
       const detail = await this.service.create(body);
 
       this.baseResponse.sendDataList(response, detail);

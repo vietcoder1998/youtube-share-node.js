@@ -5,9 +5,14 @@ const VideoService = require("../services/video.service");
 class VideoController extends BaseController {
   name = ModelName.videos;
   service = new VideoService();
+  io = {};
 
-  constructor() {
-    super();
+  constructor(io) {
+    super(io);
+
+    if (io) {
+      this.io = io;
+    }
 
     this.router
       .post("/:id/like", this.like.bind(this))
@@ -20,6 +25,7 @@ class VideoController extends BaseController {
       const body = request.body ?? {};
       const userId = request.headers["funny-movie-user-id"];
       const detail = await this.service.create(body, userId);
+      this.io.emit("newVideo", detail);
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
@@ -40,9 +46,8 @@ class VideoController extends BaseController {
 
   async dislike(request, response) {
     try {
-      const videoId = request?.params.id
-      const userId = request?.headers['funny-movie-user-id']
-      console.log(videoId)
+      const videoId = request?.params.id;
+      const userId = request?.headers["funny-movie-user-id"];
       const dataList = await this.service.onDislikeVideo(videoId, userId);
 
       this.baseResponse.sendDetail(response, dataList);
@@ -53,8 +58,8 @@ class VideoController extends BaseController {
 
   async like(request, response) {
     try {
-      const videoId = request?.params.id
-      const userId = request?.headers['funny-movie-user-id']
+      const videoId = request?.params.id;
+      const userId = request?.headers["funny-movie-user-id"];
       const dataList = await this.service.onLikeVideo(videoId, userId);
 
       this.baseResponse.sendDetail(response, dataList);
