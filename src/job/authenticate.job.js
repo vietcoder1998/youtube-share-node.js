@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const md5 = require("md5");
 
 class AuthenticateJob {
-  static instance = new AuthenticateJob()
+  static instance = new AuthenticateJob();
   expired = 60 * 60 * 1000;
   data = {
     admin: {
@@ -16,13 +16,13 @@ class AuthenticateJob {
       this.expired = expired;
     }
 
-    console.info("Authentication job is started", new Date().toISOString())
+    console.info("Authentication job is started", new Date().toISOString());
   }
   get(id) {
     const item = this.data[id];
 
-    if (!id || item) {
-      throw new Error("Token invalid");
+    if (!id || !item) {
+      throw new Error("Token is not found" + item + id);
     }
 
     return item;
@@ -79,6 +79,7 @@ class AuthenticateJob {
 
   unRegister(id, token) {
     this.validate(id, token);
+    console.log(`new User un registered: ${id}`);
 
     return this.del(id);
   }
@@ -90,14 +91,29 @@ class AuthenticateJob {
     if (token !== validateToken) {
       throw new Error("Token invalid");
     }
+
+    return 1;
   }
 
   generatePassword(password) {
     return md5(password).toString();
   }
 
-  checkTokenExists(token) { 
+  checkTokenExists(token) {
     return Object.values(this.data).includes(token);
+  }
+
+  validateRequest(request, response, next) {
+    try {
+      const userId = request.headers["funny-movie-user-id"];
+      const token = request.headers.token.replace("Bearer ", "");
+
+      this.validate(userId, token);
+
+      next();
+    } catch (error) {
+      response.status(404).send(error.message).end();
+    }
   }
 }
 
