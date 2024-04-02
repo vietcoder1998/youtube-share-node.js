@@ -78,7 +78,6 @@ class AuthenticateJob {
   }
 
   unRegister(id, token) {
-    this.validate(id, token);
 
     return this.del(id);
   }
