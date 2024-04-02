@@ -20,20 +20,18 @@ const schema = mongoose.Schema(
     },
     dislike: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: ModelName.user,
+        type: mongoose.Schema.Types.String,
       },
     ],
     like: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: ModelName.user,
+        type: mongoose.Schema.Types.String,
       },
     ],
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: ModelName.user,
-    }
+    },
   },
   { timestamps: true }
 );
