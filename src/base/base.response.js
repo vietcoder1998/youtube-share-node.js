@@ -34,11 +34,13 @@ class BaseResponse {
   };
 
   sendError = (response, detail, model) => {
+    response.status(500)
     response.send({
       message: detail.message,
       status: -1,
       model,
     });
+    response.end()
   };
 }
 

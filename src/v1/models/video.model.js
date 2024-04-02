@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
-const { ModelName } = require("../../config/constant.config");
+const { ModelName, ModelPath } = require("../../config/constant.config");
 
 const schema = mongoose.Schema(
   {
     title: {
       type: mongoose.Schema.Types.String,
       required: false,
-      default: "",
+      default: "Movie title",
     },
     link: {
       type: mongoose.Schema.Types.String,
@@ -16,11 +16,24 @@ const schema = mongoose.Schema(
     description: {
       type: mongoose.Schema.Types.String,
       required: false,
+      default: "This is default description",
     },
-    dislikeUsers: {
-      type: mongoose.Schema.Types.String,
-      required: false,
-    },
+    dislike: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: ModelName.user,
+      },
+    ],
+    like: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: ModelName.user,
+      },
+    ],
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: ModelName.user,
+    }
   },
   { timestamps: true }
 );

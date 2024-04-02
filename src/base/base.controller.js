@@ -11,8 +11,8 @@ class BaseController {
 
   defaultRouter() {
     this.router
-      .get("/", this.getList.bind(this))
-      .delete("/", this.deleteMany.bind(this))
+      .get("", this.getList.bind(this))
+      .delete("", this.deleteMany.bind(this))
       .get("/:id", this.getDetail.bind(this))
       .post("/:id", this.getDetail.bind(this))
       .put("", this.create.bind(this))
@@ -24,6 +24,7 @@ class BaseController {
     try {
       const query = request?.query ?? { page: 0, size: 10 };
       const dataList = await this.service.getList(query);
+      console.log(`this.name , ${this.name}`)
 
       this.baseResponse.sendDataList(response, dataList);
     } catch (error) {
@@ -55,8 +56,8 @@ class BaseController {
 
   async create(request, response) {
     try {
-      const query = request?.query ?? { page: 0, size: 10 };
-      const detail = await this.service.create(query);
+      const body = request.body ?? {}
+      const detail = await this.service.create(body);
 
       this.baseResponse.sendDataList(response, detail);
     } catch (error) {
