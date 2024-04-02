@@ -11,7 +11,7 @@ class AuthenticateController extends BaseController {
     this.router
       .post("/login", this.login.bind(this))
       .put("/register", this.register.bind(this))
-      .delete('/logout', this.logOut.bind(this))
+      .delete("/logout", this.logOut.bind(this))
       .post("/validateToken", this.validateToken.bind(this));
   }
 
@@ -39,8 +39,9 @@ class AuthenticateController extends BaseController {
 
   async logOut(request, response) {
     try {
-      const { email, password } = request.body ?? { email: "", password: "" };
-      const detail = await this.service.onLogout(email, password);
+      const userId = request.headers["funny-movie-user-id"];
+      const token = request.headers.token.replace("Bearer ", "");
+      const detail = await this.service.onLogout(userId, token);
 
       this.baseResponse.sendDetail(response, detail, this.name);
     } catch (error) {

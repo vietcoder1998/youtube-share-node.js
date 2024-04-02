@@ -29,7 +29,6 @@ class AuthenticateService extends BaseService {
 
   async onRegister(email, password) {
     const isUser = await UserModel.exists({ email });
-    console.log(isUser)
 
     if (isUser) {
       throw new Error("User already registered");

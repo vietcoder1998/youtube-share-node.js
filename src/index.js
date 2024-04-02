@@ -11,50 +11,91 @@ require("dotenv").config({
 
 const bodyParser = require("body-parser");
 const express = require("express");
-const v1Router = require("./v1/v1.router");
+const V1Router = require("./v1/v1.router");
 const app = express();
-const port = process.env.PORT || 3030;
+const port = process.env.NODE_PORT || 3030;
 const { Server } = require("socket.io");
-const server = require("http").createServer();
-server.listen(process.env.NODE_SOCKET_PORT || 3031);
-
 const cors = require("cors");
+const server = require("http").createServer();
 
-app.use(bodyParser.json());
-app.use(
-  cors({
-    origin: "*",
-  })
-);
-app.use((error, request, response, next) => {
-  if (error) {
-    response.status(404).send(error.message);
-    response.end();
+class ApplicationServer {
+  server = server;
+  socketIds = [];
+  io = new Server(this.server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+    },
+  });
+  app = express();
+
+  constructor() {
+    this.start();
   }
 
-  next();
-});
-app.get("/", (req, res) => {
-  res.status(200);
-  res.send("Welcome to youtube share");
-  res.end();
-});
+  pushSocketId(id) {
+    this.socketIds.push(id);
+  }
 
-app.use(`/api/v1`, v1Router);
-app.listen(process.env.NODE_PORT || 3030, () => {
-  console.log("Server listening on", [process.env.NODE_BASE_URL, process.env.NODE_PORT].join(':'));
-});
+  removeSocketId(id) {
+    this.socketIds = this.socketIds.filter((item) => item !== id);
+  }
 
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+  start() {
+    this.server.listen(process.env.NODE_SOCKET_PORT || 3031, () => {
+      console.info("Socket listen on port " + process.env.NODE_SOCKET_PORT);
+    });
+    this.io.on("connection", (socket) => {
+      this.pushSocketId(socket.id);
 
-io.on("connection", (socket) => {
-  console.log("Socket listening on", [`${process.env.NODE_SOCKET_URL}`,process.env.NODE_SOCKET_PORT].join(':'))
-  socket.on("new video", () => {
-    socket.emit("send video", "new video");
-  });
-});
+      console.info(
+        "Socket is connected on",
+        [`${process.env.NODE_SOCKET_URL}`, process.env.NODE_SOCKET_PORT].join(
+          ":"
+        )
+      );
+    });
+    this.io.on("disconnect", (socket) => {
+      console.info(
+        "Socket is disconnected on",
+        [`${process.env.NODE_SOCKET_URL}`, process.env.NODE_SOCKET_PORT].join(
+          ":"
+        )
+      );
+      this.removeSocketId(socket.id);
+    });
+
+    this.app.use(bodyParser.json());
+    this.app.use(
+      cors({
+        origin: "*",
+      })
+    );
+    this.app.use((error, request, response, next) => {
+      if (error) {
+        response.status(404).send(error.message);
+        response.end();
+      } else {
+        next();
+      }
+    });
+    this.app.get("/", (request, res) => {
+      res.status(200);
+      res.send("Welcome to youtube share");
+      res.end();
+    });
+
+    const v1Router = new V1Router(this.io, this.socketIds);
+
+    this.app.use(`/api/v1`, v1Router.router);
+    this.app.listen(port, () => {
+      console.log(
+        "Server listening on",
+        [process.env.NODE_BASE_URL, process.env.NODE_PORT].join(":")
+      );
+    });
+  }
+}
+
+// Application running on here
+new ApplicationServer();
