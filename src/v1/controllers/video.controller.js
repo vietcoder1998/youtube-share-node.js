@@ -1,6 +1,7 @@
 const BaseController = require("../../base/base.controller");
 const { ModelName } = require("../../config/constant.config");
 const VideoService = require("../services/video.service");
+const AuthenticateJob =  require("../../job/authenticate.job");
 
 class VideoController extends BaseController {
   name = ModelName.videos;
@@ -10,7 +11,7 @@ class VideoController extends BaseController {
     super();
 
     this.router
-      .post("/:id/like", this.like.bind(this))
+      .post("/:id/like", AuthenticateJob.instance.validateRequest, this.like.bind(this))
       .post("/:id/dislike", this.dislike.bind(this));
     this.defaultRouter();
   }

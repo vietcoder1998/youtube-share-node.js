@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const md5 = require("md5");
 
 class AuthenticateJob {
-  static instance = new AuthenticateJob()
+  static instance = new AuthenticateJob();
   expired = 60 * 60 * 1000;
   data = {
     admin: {
@@ -16,7 +16,7 @@ class AuthenticateJob {
       this.expired = expired;
     }
 
-    console.info("Authentication job is started", new Date().toISOString())
+    console.info("Authentication job is started", new Date().toISOString());
   }
   get(id) {
     const item = this.data[id];
@@ -96,8 +96,25 @@ class AuthenticateJob {
     return md5(password).toString();
   }
 
-  checkTokenExists(token) { 
+  checkTokenExists(token) {
     return Object.values(this.data).includes(token);
+  }
+
+  validateRequest(request, response, next) {
+    try {
+      const userId = request.headers["funny-movies-user-id"];
+      const token = request.headers.authorization.split("Bearer ")[0];
+
+      const isValidate = this.validate(userId, token);
+
+      if (!isValidate) {
+        throw new Error("Token is not valid");
+      } else {
+        next();
+      }
+    } catch (error) {
+      response.status(404).send(error.message).end();
+    }
   }
 }
 
