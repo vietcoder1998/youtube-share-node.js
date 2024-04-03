@@ -1,27 +1,39 @@
 services:
   # Node.js Service
   nodejs:
-    container_name: youtube-share-be
+    image: server
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "86:86"
-      - "87:87"
+      - "3030:3030"
+      - "3031:3031"
     volumes:
-      - .:/usr/src/app
+      - .:/usr/server
     environment:
       NODE_ENV: production
     depends_on:
       - mongodb
+    env_file:
+      - .env.docker.production
+
+    networks:
+      - youtube_share
+
   
   # MongoDB Service
   mongodb:
     image: mongo:latest
     ports:
-      - "27017:27018"
+      - "27018:27017"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - youtube_share
+
+networks:
+  youtube_share:
+    driver: bridge
 
 volumes:
   mongodb_data:
